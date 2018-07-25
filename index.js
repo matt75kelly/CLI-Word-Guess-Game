@@ -5,9 +5,6 @@ let attempts = {
     current : 0,
     max : 0
 }
-var target = new Word(`initialization`);
-
-
 function setMax(word){
     return Math.floor(1.25 * Math.sqrt(word.length * 10));
 }
@@ -16,22 +13,28 @@ function resetGame(data){
     console.log(`WordBank is Loaded`);
     let wordList = data.split("\n");
     let index = Math.floor(Math.random() * wordList.length);
-    target = new Word(wordList[index]).buildWord();
+    let word = wordList[index].trim();
     attempts.max = setMax(wordList[index]);
     attempts.current = 0;
-    console.log(wordList[index])
-    console.log(attempts);
+    return word;
 }
-function wordGuess(){
+function wordGuess(string){
+    let target = string;
         fs.readFile("words.txt","utf-8", (err, data) =>{
             if(err){
                 console.log(`Error: ${err}`);
             }
             else{
-                let displayCurrent = target.showWord();
-                console.log(displayCurrent);
+
+                console.log(target.showWord());
+                console.log(attempts.current);
                 if(attempts.current === 0){
-                    resetGame(data);
+                    console.log(`Resetting the WORD`);
+                    word = resetGame(data);
+                    console.log(word);
+                    target = new Word(word);
+                    target.buildWord();
+                    console.log(`Target: ${target}`);
                 }
 
                 if(attempts.current <= attempts.max && !target.isGuessed){
@@ -48,23 +51,23 @@ function wordGuess(){
                                 else return false;
                             }
                         }
-                    ]).catch(error =>{
-                        console.log(`Error: ${error}.`);
-                    }).then(answers =>{
+                    ]).then(answers =>{
                         let char = answers.guess.charAt(0);
                         let gotOne = target.guessLetter(char);
                         if(gotOne > 0) {
                             console.log(`\n-------Correct!-------`);
+                            attempts.current++;
+                            attempts.max++;
                         }
                         else {
-                            console.log(`\n-------Incorrect!-------`);
+                            console.log(`\n-------Incorrect!-------`);attempts.current++;
                         }
-
-                        attempts.current++;
 
                         console.log(`\nYou have ${attempts.max - attempts.current} guesses remaining.\n`);
 
-                        wordGuess();
+                        wordGuess(target);
+                    }).catch(error =>{
+                        console.log(`Error: ${error}.`);
                     })
                 }
                 else if(attempts.current <= attempts.max && target.isGuessed){
@@ -81,7 +84,7 @@ function wordGuess(){
                     }).then(answers=>{
                         if(answers.playAgain){
                             attempts.current = 0;
-                            wordGuess();
+                            wordGuess(target);
                         }
                         else{
                             console.log(`\nThanks for Playing!\nSee you Next Time.`)
@@ -102,7 +105,7 @@ function wordGuess(){
                     }).then(answers=>{
                         if(answers.playAgain){
                             attempts.current = 0;
-                            wordGuess();
+                            wordGuess(target);
                         }
                         else{
                             console.log(`\nThanks for Playing!\nSee you Next Time.`)
@@ -112,4 +115,5 @@ function wordGuess(){
             }
         })
     }
-wordGuess();
+let string = new Word (``);
+wordGuess(string);

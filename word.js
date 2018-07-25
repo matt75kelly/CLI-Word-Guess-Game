@@ -7,12 +7,10 @@ var Word = function(string){
     this.letters = [];
     this.isGuessed = false;
     this.buildWord = function(){
-        let word = this.word.toLowerCase().trim();
-        let array = [];
-        for(let i = 0; i < word.length; i++){
-            this.letters.push(new Letter(word.charAt(i)));
+        let keyword = this.word.toLowerCase().trim();
+        for(let i = 0; i < keyword.length; i++){
+            this.letters.push(new Letter(keyword.charAt(i)));
         }
-        return array;
     };
 
     this.showWord = ()=>{
@@ -28,9 +26,14 @@ var Word = function(string){
         let rightGuesses = 0;
         for(let i = 0; i < this.letters.length; i++){
             this.letters[i].checkGuess(char);
-            if(this.letters[i].isGuessed) rightGuesses++;
+            if(this.letters[i].isGuessed) {
+                rightGuesses++;
+            }
         }
-        if(rightGuesses === this.letters.length) this.isGuessed = true;
+        if(rightGuesses === this.letters.length) {
+            this.isGuessed = true;
+            console.log(rightGuesses + ` == ` + this.letters.length); 
+        }
         return rightGuesses;
     }   
 }
