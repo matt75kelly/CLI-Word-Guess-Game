@@ -41,13 +41,13 @@ function wordGuess(string){
                 if(attempts.current === 0){
                     // console.log(`Resetting the WORD`);
                     word = resetGame(data);
-                    console.log(word);
+                    // console.log(word);
                     target = new Word(word);
                     target.buildWord();
                     // console.log(`Target: ${target}`);
                 }
                 console.log(target.showWord());
-                console.log(attempts.current);
+                // console.log(attempts.current);
 
                 if(attempts.current <= attempts.max && !target.isGuessed){
                     ask.prompt([
@@ -82,7 +82,7 @@ function wordGuess(string){
                             console.log(`\n-------Incorrect!-------`);attempts.current++;
                         }
 
-                        console.log(`\nYou have ${attempts.max - attempts.current} guesses remaining.\n`);
+                        console.log(`\nYou have ${attempts.max - attempts.current} wrong guesses remaining.\n`);
 
                         wordGuess(target);
                     }).catch(error =>{
