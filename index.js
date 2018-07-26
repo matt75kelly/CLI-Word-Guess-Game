@@ -1,16 +1,27 @@
 var Word = require("./word.js");
 var ask = require("inquirer");
 var fs = require("fs");
+// Object to track the number of Guesses the Player has on the current Word
 let attempts = {
     current : 0,
     max : 0
 }
+// Array to store previous Player Guesses
+let lettersGuessed = [];
+// function to check whether or not the Player submitted a unique guess
+function newGuess(char){
+    for(let i = 0; i < lettersGuessed.length; i++){
+        if(char.charAt(0) === lettersGuessed[i]){
+            return false;
+        }
+    }
+    return true;
+}
 function setMax(word){
-    return Math.floor(1.25 * Math.sqrt(word.length * 10));
+    return Math.floor(1.25 * Math.sqrt(word.length * 10)) - 1;
 }
 
 function resetGame(data){
-    console.log(`WordBank is Loaded`);
     let wordList = data.split("\n");
     let index = Math.floor(Math.random() * wordList.length);
     let word = wordList[index].trim();
@@ -26,16 +37,17 @@ function wordGuess(string){
             }
             else{
 
-                console.log(target.showWord());
-                console.log(attempts.current);
+                
                 if(attempts.current === 0){
-                    console.log(`Resetting the WORD`);
+                    // console.log(`Resetting the WORD`);
                     word = resetGame(data);
                     console.log(word);
                     target = new Word(word);
                     target.buildWord();
-                    console.log(`Target: ${target}`);
+                    // console.log(`Target: ${target}`);
                 }
+                console.log(target.showWord());
+                console.log(attempts.current);
 
                 if(attempts.current <= attempts.max && !target.isGuessed){
                     ask.prompt([
@@ -46,13 +58,20 @@ function wordGuess(string){
                             validate: function(value){
                                 let input = value.trim().toLowerCase();
                                 let char = input.charCodeAt(0);
-                                if(char > 0x60 && char < 0x7A) return true;
-                                else if(char === 0x20 || char === 0x27 || char === 0x2D) return true;
-                                else return false;
+                                if(newGuess(value)){
+                                    if(char > 0x60 && char < 0x7B) return true;
+                                    else if(char === 0x20 || char === 0x27 || char === 0x2D) return true;
+                                    else return false;
+                                }
+                                else {
+                                    console.log("\nYou've already guessed that letter! Pick a different one.\n");
+                                    return false;
+                                }
                             }
                         }
                     ]).then(answers =>{
                         let char = answers.guess.charAt(0);
+                        lettersGuessed.push(char);
                         let gotOne = target.guessLetter(char);
                         if(gotOne > 0) {
                             console.log(`\n-------Correct!-------`);
@@ -84,6 +103,7 @@ function wordGuess(string){
                     }).then(answers=>{
                         if(answers.playAgain){
                             attempts.current = 0;
+                            lettersGuessed = [];
                             wordGuess(target);
                         }
                         else{
@@ -92,7 +112,8 @@ function wordGuess(string){
                     });
                 }
                 else if(attempts.current > attempts.max && !target.isGuessed) {
-                    console.log(`\nSorry! You ran out of attempts!`)
+                    console.log(`\nSorry! You ran out of attempts!\n`);
+                    console.log(`The word was: ${target.word}.\n`);
                     ask.prompt([
                         {
                             type: "confirm",
@@ -105,6 +126,7 @@ function wordGuess(string){
                     }).then(answers=>{
                         if(answers.playAgain){
                             attempts.current = 0;
+                            lettersGuessed = [];
                             wordGuess(target);
                         }
                         else{

@@ -6,6 +6,7 @@ var Word = function(string){
     this.word = string;
     this.letters = [];
     this.isGuessed = false;
+    this.numberRight = 0;
     this.buildWord = function(){
         let keyword = this.word.toLowerCase().trim();
         for(let i = 0; i < keyword.length; i++){
@@ -34,7 +35,9 @@ var Word = function(string){
             this.isGuessed = true;
             console.log(rightGuesses + ` == ` + this.letters.length); 
         }
-        return rightGuesses;
+        let rightLetters = rightGuesses - this.numberRight;
+        this.numberRight = rightGuesses;
+        return rightLetters;
     }   
 }
 
